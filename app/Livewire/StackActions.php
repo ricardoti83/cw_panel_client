@@ -4,6 +4,7 @@ namespace App\Livewire;
 
 use App\Models\Stack;
 use Livewire\Component;
+use Illuminate\Support\Facades\Http;
 
 class StackActions extends Component
 {
@@ -15,15 +16,23 @@ class StackActions extends Component
     {
         if ($this->stack->status !== 'offline') return;
 
-        $this->stack->update(['status' => 'starting']);
+        // 🔗 chama a API dockerctl
+        Http::post('http://dockerctl:3000/start', [
+            'container' => $this->stack->container_name,
+        ]);
 
-        sleep(2); // simula inicialização
+        $this->stack->update(['status' => 'starting']);
+        sleep(2);
         $this->stack->update(['status' => 'active']);
     }
 
     public function stop()
     {
         if ($this->stack->status !== 'active') return;
+
+        Http::post('http://dockerctl:3000/stop', [
+            'container' => $this->stack->container_name,
+        ]);
 
         $this->stack->update(['status' => 'offline']);
     }
@@ -32,9 +41,12 @@ class StackActions extends Component
     {
         if ($this->stack->status !== 'active') return;
 
-        $this->stack->update(['status' => 'starting']);
+        Http::post('http://dockerctl:3000/restart', [
+            'container' => $this->stack->container_name,
+        ]);
 
-        sleep(2); // simula reinicialização
+        $this->stack->update(['status' => 'starting']);
+        sleep(2);
         $this->stack->update(['status' => 'active']);
     }
 

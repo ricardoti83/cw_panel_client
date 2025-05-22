@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return view('welcome');
+Route::get('/docker-containers', function () {
+    $containers = shell_exec('docker ps --format "{{.Names}} {{.Status}}"');
+    dd($containers);
 });
